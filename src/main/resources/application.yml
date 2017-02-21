@@ -28,3 +28,22 @@ management:
   info:
     git:
       mode: full
+
+---
+
+spring:
+  profiles: heroku
+  datasource:
+    url: ${DATABASE_URL}
+    username:
+    password:
+    testWhileIdle: true
+    validationQuery: SELECT 1
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL94Dialect

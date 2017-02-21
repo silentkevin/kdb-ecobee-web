@@ -49,8 +49,8 @@ dependencies {
     compile('org.codehaus.groovy:groovy:2.4.8')
 
     compile('com.h2database:h2:1.4.193')
-
     compile('mysql:mysql-connector-java:6.0.5')
+    compile('org.postgresql:postgresql:9.4.1212')
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
