@@ -5,8 +5,10 @@ import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "kdb_user") // 'user' is a reserved word in postgresql
 @Access(AccessType.PROPERTY)
 public class User {
     private String id;
