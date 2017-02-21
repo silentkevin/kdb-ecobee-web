@@ -40,11 +40,13 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web-services')
     compile('org.springframework.boot:spring-boot-devtools')
 
-    compile('org.codehaus.groovy:groovy')
+    compile('joda-time:joda-time:2.9.7')
 
-    compile('com.h2database:h2')
+    compile('org.codehaus.groovy:groovy:2.4.8')
 
-    compile('mysql:mysql-connector-java')
+    compile('com.h2database:h2:1.4.193')
+
+    compile('mysql:mysql-connector-java:6.0.5')
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
