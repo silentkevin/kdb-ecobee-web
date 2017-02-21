@@ -1,0 +1,33 @@
+/build
+.gradle
+
+.DS_Store
+.settings
+
+# Eclipse artifacts, including WTP generated manifests
+.classpath
+.project
+spring-*/src/main/java/META-INF/MANIFEST.MF
+
+# IDEA artifacts and output dirs
+*.iml
+*.ipr
+*.iws
+.idea
+
+# Functional test generated/downloaded artifacts
+node_modules
+npm-debug.log
+test-data.js
+
+# Integration test artifacts
+integrationTestLogJson.log
+
+temp.txt
+
+infrastructure/aws/cloudformation.template
+
+src/main/resources/logback.xml
+src/test/resources/logback.xml
+
+dependencies.txt
