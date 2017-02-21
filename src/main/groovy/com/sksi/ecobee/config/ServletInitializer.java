@@ -1,4 +1,4 @@
-package com.sksi.ecobee;
+package com.sksi.ecobee.config;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;

@@ -1,7 +1,9 @@
-package com.sksi.ecobee
+package com.sksi.ecobee.controller
 
+import com.sksi.ecobee.data.UserRepository
 import org.joda.time.DateTime
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
@@ -14,10 +16,16 @@ import groovy.util.logging.Slf4j
 @CompileStatic
 @Slf4j
 class MyController {
-    @RequestMapping(method = RequestMethod.GET)
-    String get() {
+    @Autowired UserRepository userRepository
+
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    Map get() {
         String msg = "hi shithead ${DateTime.now()}"
         log.info("called /hi msg={}", msg)
-        return msg
+
+        Map ret = [:]
+        ret.msg = msg
+        ret.users = userRepository.collect({ it })
+        return ret
     }
 }
