@@ -19,7 +19,14 @@ class BootstrapConfig {
 
     @PostConstruct
     void init() {
-        User user = new User(id: "3802802c-5cf8-40a4-96c6-095ccf653d06", name: "kevin", displayName: "Kevin Brown")
+        User user = new User(
+            id: "3802802c-5cf8-40a4-96c6-095ccf653d06",
+            name: "kevin",
+            displayName: "Kevin",
+            email: "myEmail@email.com",
+            password: "password",
+            enabled: true
+        )
         userRepository.save(user)
     }
 }
