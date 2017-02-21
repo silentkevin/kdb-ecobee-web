@@ -12,14 +12,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     @TypeChecked(TypeCheckingMode.SKIP)
     protected void configure(HttpSecurity http) throws Exception {
-        String[] permitAllExpression = {"/hi"};
-        http
-                .authorizeRequests()
-                .antMatchers(permitAllExpression)
-                .permitAll()
-            .and()
-                .authorizeRequests()
-                .anyRequest()
-                .authenticated();
+        String[] permitAllExpression = {"/*", "/**"};
+//        http
+//                .authorizeRequests()
+//                .antMatchers(permitAllExpression)
+//                .permitAll()
+//            .and()
+//                .authorizeRequests()
+//                .anyRequest()
+//                .authenticated();
+        http.authorizeRequests().antMatchers(permitAllExpression).permitAll();
     }
 }
