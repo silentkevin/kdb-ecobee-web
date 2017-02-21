@@ -19,7 +19,7 @@ class BootstrapConfig {
 
     @PostConstruct
     void init() {
-        User user = new User(id: UUID.randomUUID().toString(), name: "kevin")
+        User user = new User(id: "3802802c-5cf8-40a4-96c6-095ccf653d06", name: "kevin", displayName: "Kevin Brown")
         userRepository.save(user)
     }
 }

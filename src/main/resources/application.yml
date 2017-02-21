@@ -5,6 +5,7 @@ spring:
   jackson:
     serialization:
       indent_output: true
+      FAIL_ON_EMPTY_BEANS: false
     deserialization:
       FAIL_ON_UNKNOWN_PROPERTIES: false
 

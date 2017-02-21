@@ -1,5 +1,6 @@
 package com.sksi.ecobee.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.sksi.ecobee.data.User
 import com.sksi.ecobee.data.UserRepository
 import org.joda.time.DateTime
@@ -18,17 +19,18 @@ import groovy.util.logging.Slf4j
 @Slf4j
 class MyController {
     @Autowired UserRepository userRepository
+    @Autowired ObjectMapper objectMapper
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    Map get() {
+    String get() {
         String msg = "hi shithead ${DateTime.now()}"
         log.info("called /hi msg={}", msg)
 
-        List<User> users = new ArrayList<>(userRepository.collect({ it }) as List<User>)
+        List<User> users = new ArrayList<>(userRepository.findAll().collect({ it }) as List<User>)
 
         Map ret = [:]
         ret.msg = msg
         ret.users = users
-        return ret
+        return objectMapper.writeValueAsString(ret)
     }
 }
