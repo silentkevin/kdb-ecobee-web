@@ -5,6 +5,8 @@
 .DS_Store
 .settings
 
+bundle.js
+
 # Eclipse artifacts, including WTP generated manifests
 .classpath
 .project
