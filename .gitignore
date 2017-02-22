@@ -6,6 +6,7 @@
 .settings
 
 bundle.js
+bundle.js.map
 
 # Eclipse artifacts, including WTP generated manifests
 .classpath
