@@ -1,5 +1,6 @@
 package com.sksi.ecobee.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -59,6 +60,7 @@ public class User {
         this.displayName = displayName;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
