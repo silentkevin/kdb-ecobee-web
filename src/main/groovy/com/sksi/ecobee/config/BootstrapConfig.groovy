@@ -49,6 +49,6 @@ class BootstrapConfig {
         )
         userRepository.save(user)
 
-        ecobeeAuthManager.initUser(user)
+//        ecobeeAuthManager.initUser(user)
     }
 }
