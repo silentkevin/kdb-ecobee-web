@@ -1,9 +1,14 @@
 package com.sksi.ecobee.data;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
@@ -32,7 +37,7 @@ public class EcobeeUser {
         this.id = id;
     }
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     public User getUser() {
         return user;
     }
@@ -73,5 +78,38 @@ public class EcobeeUser {
     }
     public void setAccessTokenExpirationDate(Date accessTokenExpirationDate) {
         this.accessTokenExpirationDate = accessTokenExpirationDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EcobeeUser that = (EcobeeUser) o;
+
+        return new EqualsBuilder()
+            .append(getId(), that.getId())
+            .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+            .append(getId())
+            .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+            .append("id", id)
+            .append("user", user)
+            .append("pinCode", pinCode)
+            .append("ecobeeCode", ecobeeCode)
+            .append("accessToken", accessToken)
+            .append("refreshToken", refreshToken)
+            .append("accessTokenExpirationDate", accessTokenExpirationDate)
+            .toString();
     }
 }

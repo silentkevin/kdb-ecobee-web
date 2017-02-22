@@ -1,16 +1,22 @@
 package com.sksi.ecobee.data;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Set;
 
@@ -25,6 +31,7 @@ public class User {
     private String email;
     private boolean enabled = true;
     private Set<Role> roles;
+    private EcobeeUser ecobeeUser;
 
     @Id
     @Column(length = 36)
@@ -80,5 +87,47 @@ public class User {
     }
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    @OneToOne(fetch = FetchType.EAGER)
+    public EcobeeUser getEcobeeUser() {
+        return ecobeeUser;
+    }
+    public void setEcobeeUser(EcobeeUser ecobeeUser) {
+        this.ecobeeUser = ecobeeUser;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        return new EqualsBuilder()
+            .append(getId(), user.getId())
+            .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+            .append(getId())
+            .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+            .append("id", id)
+            .append("name", name)
+            .append("password", password)
+            .append("displayName", displayName)
+            .append("email", email)
+            .append("enabled", enabled)
+            .append("roles", roles)
+            .append("ecobeeUser", ecobeeUser)
+            .toString();
     }
 }

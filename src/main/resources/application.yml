@@ -16,6 +16,15 @@ management:
     git:
       mode: full
 
+com:
+  sksi:
+    ecobee:
+      ecobeeApiKey: ${ECOBEE_API_KEY}
+
+logging:
+  level:
+    logger.com.sksi: 'DEBUG'
+
 ---
 
 spring:

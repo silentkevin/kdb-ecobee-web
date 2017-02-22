@@ -4,6 +4,7 @@ import com.sksi.ecobee.data.Role
 import com.sksi.ecobee.data.RoleRepository
 import com.sksi.ecobee.data.User
 import com.sksi.ecobee.data.UserRepository
+import com.sksi.ecobee.manager.EcobeeAuthManager
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
@@ -21,6 +22,7 @@ class BootstrapConfig {
     @Autowired UserRepository userRepository
     @Autowired RoleRepository roleRepository
     @Autowired BCryptPasswordEncoder bCryptPasswordEncoder
+    @Autowired EcobeeAuthManager ecobeeAuthManager
 
     @PostConstruct
     void init() {
@@ -46,5 +48,7 @@ class BootstrapConfig {
             roles: [userRole, adminRole].toSet()
         )
         userRepository.save(user)
+
+        ecobeeAuthManager.initUser(user)
     }
 }
