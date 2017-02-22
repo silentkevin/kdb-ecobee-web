@@ -1,9 +1,12 @@
 package com.sksi.ecobee.data;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -24,6 +27,9 @@ public class User {
     private Set<Role> roles;
 
     @Id
+    @Column(length = 36)
+    @GeneratedValue(generator = "string-uuid")
+    @GenericGenerator(name = "string-uuid", strategy = "com.sksi.ecobee.data.StringUUIDGenerator")
     public String getId() {
         return id;
     }
