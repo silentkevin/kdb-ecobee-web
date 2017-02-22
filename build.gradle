@@ -45,6 +45,8 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web-services')
     compile('org.springframework.boot:spring-boot-devtools')
 
+    compile('org.apache.commons:commons-lang3:3.0')
+
     compile('joda-time:joda-time:2.9.7')
 
     compile('org.codehaus.groovy:groovy:2.4.8')

@@ -5,7 +5,11 @@ import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import java.util.Set;
 
 @Entity
 @Table(name = "kdb_user") // 'user' is a reserved word in postgresql
@@ -17,6 +21,7 @@ public class User {
     private String displayName;
     private String email;
     private boolean enabled = true;
+    private Set<Role> roles;
 
     @Id
     public String getId() {
@@ -60,5 +65,14 @@ public class User {
     }
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    @ManyToMany
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    public Set<Role> getRoles() {
+        return roles;
+    }
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }
