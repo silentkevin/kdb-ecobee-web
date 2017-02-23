@@ -16,6 +16,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 @Entity
 @Table
@@ -23,6 +24,7 @@ import javax.persistence.Table;
 public class Role {
     private String id;
     private String name;
+    private Long version;
 
     @Id
     @Column(length = 36)
@@ -46,6 +48,15 @@ public class Role {
     public GrantedAuthority asGrantedAuthority() {
         return new SimpleGrantedAuthority(this.getName().toUpperCase());
     }
+
+    @Version
+    public Long getVersion() {
+        return version;
+    }
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
 
     @Override
     public boolean equals(Object o) {

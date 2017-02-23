@@ -13,18 +13,23 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 import java.util.Date;
 
 @Entity
 @Table
 public class EcobeeUser {
     private String id;
+
     private User user;
+
     private String pinCode;
     private String ecobeeCode;
     private String accessToken;
     private String refreshToken;
     private Date accessTokenExpirationDate;
+
+    private Long version;
 
     @Id
     @Column(length = 36)
@@ -78,6 +83,14 @@ public class EcobeeUser {
     }
     public void setAccessTokenExpirationDate(Date accessTokenExpirationDate) {
         this.accessTokenExpirationDate = accessTokenExpirationDate;
+    }
+
+    @Version
+    public Long getVersion() {
+        return version;
+    }
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override

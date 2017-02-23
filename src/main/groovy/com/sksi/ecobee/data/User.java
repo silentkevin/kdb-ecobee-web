@@ -19,6 +19,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 import java.util.Set;
 
 @Entity
@@ -33,6 +34,7 @@ public class User {
     private boolean enabled = true;
     private Set<Role> roles;
     private EcobeeUser ecobeeUser;
+    private Long version;
 
     @Id
     @Column(length = 36)
@@ -97,6 +99,14 @@ public class User {
     }
     public void setEcobeeUser(EcobeeUser ecobeeUser) {
         this.ecobeeUser = ecobeeUser;
+    }
+
+    @Version
+    public Long getVersion() {
+        return version;
+    }
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override

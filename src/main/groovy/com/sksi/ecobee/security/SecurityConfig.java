@@ -22,7 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String[] permitAllExpression = {"/", "/home", "/hi", "/data/**"};
+        String[] permitAllExpression = {"/", "/home", "/hi", "/built/**", "/data/**"};
 //        http
 //                .authorizeRequests()
 //                .antMatchers(permitAllExpression)

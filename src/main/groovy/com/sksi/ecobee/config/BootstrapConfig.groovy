@@ -49,6 +49,28 @@ class BootstrapConfig {
         )
         userRepository.save(user)
 
+        user = new User(
+            id: UUID.randomUUID().toString(),
+            name: "other",
+            displayName: "Other Person",
+            email: "other@email.com",
+            password: bCryptPasswordEncoder.encode("password"),
+            enabled: true,
+            roles: [userRole].toSet()
+        )
+        userRepository.save(user)
+
+        user = new User(
+            id: UUID.randomUUID().toString(),
+            name: "other2",
+            displayName: "Other Person 2",
+            email: "other2@email.com",
+            password: bCryptPasswordEncoder.encode("password"),
+            enabled: false,
+            roles: [userRole].toSet()
+        )
+        userRepository.save(user)
+
 //        ecobeeAuthManager.initUser(user)
     }
 }
