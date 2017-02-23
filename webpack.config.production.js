@@ -1,9 +1,5 @@
 var path = require("path");
 
-var Dashboard = require('webpack-dashboard');
-var DashboardPlugin = require('webpack-dashboard/plugin');
-var dashboard = new Dashboard();
-
 module.exports = {
     entry: './src/main/js/app.js',
 
@@ -22,10 +18,6 @@ module.exports = {
     stats: {
         colors: true
     },
-
-    plugins: [
-        new DashboardPlugin(dashboard.setData)
-    ],
 
     module: {
         loaders: [

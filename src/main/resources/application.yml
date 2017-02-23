@@ -31,7 +31,7 @@ logging:
     org.hibernate.SQL: 'DEBUG'
     org.springframework: 'INFO'
     org.springframework.env: 'INFO'
-    org.springframework.security: 'DEBUG'
+    org.springframework.security: 'INFO'
     org.springframework.cloud.sleuth: 'INFO'
 
 ---
