@@ -10,7 +10,10 @@ var server = new WebpackDevServer(compiler, {
     quiet: true,
     historyApiFallback: true,
     proxy: {
-        "/data": "http://localhost:8080"
+        "/data": {
+            target: "http://localhost:8080",
+            secure: false
+        }
     }
 });
 
