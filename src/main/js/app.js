@@ -1,5 +1,7 @@
 'use strict';
 
+debugger;
+
 // tag::vars[]
 const React = require('react');
 const ReactDOM = require('react-dom');
@@ -14,7 +16,7 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        client({method: 'GET', path: '/data/users'}).done(response => {
+        client({method: 'GET', path: '/backend/data/users'}).done(response => {
             this.setState({users: response.entity._embedded.users});
         });
     }

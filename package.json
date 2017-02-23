@@ -1,6 +1,7 @@
 {
   "name": "kdb-ecobee-web",
   "version": "0.0.1",
+  "private": true,
   "dependencies": {
     "react": "15.3.2",
     "react-dom": "15.3.2",

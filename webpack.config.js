@@ -1,25 +1,31 @@
 var path = require("path");
-var webpack = require('webpack');
-var nodeModulesPath = path.join(__dirname, 'node_modules');
 var Dashboard = require('webpack-dashboard');
 var DashboardPlugin = require('webpack-dashboard/plugin');
 var dashboard = new Dashboard();
 
 module.exports = {
     entry: './src/main/js/app.js',
+
     devtool: 'sourcemaps',
-    cache: false,
+
+    cache: true,
+
     debug: true,
+
     output: {
-        path: __dirname,
-        filename: './src/main/resources/static/built/bundle.js'
+        path: __dirname + '/src/main/resources/static',
+        filename: 'built.js',
+        publicPath: __dirname + '/src/main/resources/static'
     },
+
+    stats: {
+        colors: true
+    },
+
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin('vendors', './src/main/resources/static/built/vendors-bundle.js'),
-        new webpack.HotModuleReplacementPlugin(),
-        new webpack.NoErrorsPlugin(),
         new DashboardPlugin(dashboard.setData)
     ],
+
     module: {
         loaders: [
             {

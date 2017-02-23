@@ -23,7 +23,14 @@ com:
 
 logging:
   level:
-    logger.com.sksi: 'DEBUG'
+    com: 'DEBUG'
+    com.sksi: 'DEBUG'
+    org: 'DEBUG'
+    org.apache: 'DEBUG'
+    org.springframework: 'INFO'
+    org.springframework.env: 'DEBUG'
+    org.springframework.security: 'DEBUG'
+    org.springframework.cloud.sleuth: 'DEBUG'
 
 ---
 

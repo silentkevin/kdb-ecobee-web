@@ -1,19 +1,16 @@
 var webpack = require('webpack');
 var WebpackDevServer = require('webpack-dev-server');
-var config = require('./webpack.config');
 
-new WebpackDevServer(webpack(config), {
-    stats: { colors: true },
-    proxy: {
-        "*": "http://localhost:7479" // <- backend
-    },
+var config = require('./webpack.config.js');
+var compiler = webpack(config);
+
+var server = new WebpackDevServer(compiler, {
     publicPath: config.output.publicPath,
-    quiet: true, // lets WebpackDashboard do its thing
-    hot: true,
+    quiet: true,
     historyApiFallback: true
-}).listen(5000, 'localhost', function (err) {
-    if (err) {
-        console.log(err);
-    }
-    console.log('Listening at localhost:5000');
+    // proxy: {
+    //     "/backend": "http://localhost:8080" // <- backend
+    // }
 });
+
+server.listen(8081);
