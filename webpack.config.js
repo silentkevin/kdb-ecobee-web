@@ -15,7 +15,7 @@ module.exports = {
     output: {
         path: __dirname + '/src/main/resources/static',
         filename: 'built.js',
-        publicPath: "/"
+        publicPath: '/'
     },
 
     stats: {
