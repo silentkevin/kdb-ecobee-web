@@ -23,14 +23,16 @@ com:
 
 logging:
   level:
-    com: 'DEBUG'
+    com: 'INFO'
     com.sksi: 'DEBUG'
-    org: 'DEBUG'
-    org.apache: 'DEBUG'
+    org: 'INFO'
+    org.apache: 'INFO'
+    org.hibernate: 'INFO'
+    org.hibernate.SQL: 'DEBUG'
     org.springframework: 'INFO'
-    org.springframework.env: 'DEBUG'
-    org.springframework.security: 'DEBUG'
-    org.springframework.cloud.sleuth: 'DEBUG'
+    org.springframework.env: 'INFO'
+    org.springframework.security: 'INFO'
+    org.springframework.cloud.sleuth: 'INFO'
 
 ---
 
