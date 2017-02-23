@@ -15,7 +15,7 @@ module.exports = {
         filename: './src/main/resources/static/built/bundle.js'
     },
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors-bundle.js'),
+        new webpack.optimize.CommonsChunkPlugin('vendors', './src/main/resources/static/built/vendors-bundle.js'),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoErrorsPlugin(),
         new DashboardPlugin(dashboard.setData)
