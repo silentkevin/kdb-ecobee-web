@@ -2,16 +2,16 @@
   "name": "kdb-ecobee-web",
   "version": "0.0.1",
   "dependencies": {
-    "react": "^15.3.2",
-    "react-dom": "^15.3.2",
-    "rest": "^1.3.1",
-    "webpack": "^1.12.2",
-    "webpack-dev-server": "1.4.7"
+    "react": "15.3.2",
+    "react-dom": "15.3.2",
+    "rest": "1.3.1",
+    "webpack": "1.13.0",
+    "webpack-dashboard": "0.1.7",
+    "webpack-dev-server": "1.14.1"
   },
   "scripts": {
     "watch": "webpack --watch -d",
-    "dev-server": "webpack-dev-server --config webpack-dev-server.config.js --progress --colors --port 2992 --inline",
-    "hot-dev-server": "webpack-dev-server --config webpack-hot-dev-server.config.js --hot --progress --colors --port 2992 --inline"
+    "dev-server": "node server.js"
   },
   "devDependencies": {
     "babel-core": "^6.18.2",
