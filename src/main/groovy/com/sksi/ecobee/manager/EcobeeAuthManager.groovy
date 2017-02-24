@@ -3,6 +3,7 @@ package com.sksi.ecobee.manager
 import com.sksi.ecobee.data.EcobeeUser
 import com.sksi.ecobee.data.EcobeeUserRepository
 import com.sksi.ecobee.data.User
+import com.sksi.ecobee.data.UserRepository
 import com.sksi.ecobee.manager.model.EcobeeAuthorizeResponse
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,6 +25,7 @@ class EcobeeAuthManager {
 
     @Autowired RestTemplate restTemplate
     @Autowired EcobeeUserRepository ecobeeUserRepository
+    @Autowired UserRepository userRepository
 
     void initUser(User user) {
         if (user.ecobeeUser != null) {
@@ -40,6 +42,11 @@ class EcobeeAuthManager {
         ecobeeUser.setEcobeeCode(resp.getCode())
         ecobeeUser.setUser(user)
         ecobeeUserRepository.save(ecobeeUser)
+
+        user.ecobeeUser = ecobeeUser
+        userRepository.save(user)
+
+        log.debug("generated login user={},ecobeeUser={}", user, ecobeeUser)
 //
 //
 //

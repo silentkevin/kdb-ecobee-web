@@ -13,6 +13,10 @@ var server = new WebpackDevServer(compiler, {
         "/data": {
             target: "http://localhost:8080",
             secure: false
+        },
+        "/user": {
+            target: "http://localhost:8080",
+            secure: false
         }
     }
 });
