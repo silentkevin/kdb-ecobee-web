@@ -46,79 +46,23 @@ class EcobeeAuthManager {
         user.ecobeeUser = ecobeeUser
         userRepository.save(user)
 
-        log.debug("generated login user={},ecobeeUser={}", user, ecobeeUser)
-//
-//
-//
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-//            new Response.Listener<String>() {
-//                @Override
-//                public void onResponse(String response) {
-//                    try {
-//                        Map resp = new Gson().fromJson(response, Map.class);
-//                        String pinCode = resp.get("ecobeePin").toString();
-//                        String code = resp.get("code").toString();
-//                        Log.i(LOG_TAG, "Response is: " + response);
-//                        Log.i(LOG_TAG, "PIN Code: " + pinCode);
-//                        textViewStatusText.setText(String.format("From login:  PIN %s code %s", pinCode, code));
-//
-//                        SharedPreferences.Editor editor = settings.edit();
-//                        editor.putString("ecobeePinCode", pinCode);
-//                        editor.putString("ecobeeCode", code);
-//                        editor.commit();
-//                    } catch (Exception e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-//            },
-//            new Response.ErrorListener() {
-//                @Override
-//                public void onErrorResponse(VolleyError error) {
-//                    textViewStatusText.setText(String.format("Login failure: " + error.networkResponse.statusCode));
-//                }
-//            }
-//        );
-//        queue.add(stringRequest);
+        log.debug("generated login username={},pin={},code={}", user.name, ecobeeUser.pinCode, ecobeeUser.ecobeeCode)
+    }
 
+    void getAccessToken(User user) {
+        EcobeeUser ecobeeUser = user.ecobeeUser
+
+        boolean refresh = ecobeeUser.accessToken != null
+        String url = String.format("https://www.ecobee.com/home/token?grant_type=ecobeePin&code=%s&client_id=%s", ecobeeUser.ecobeeCode, ecobeeApiKey)
+        if (refresh) {
+            url = String.format("https://api.ecobee.com/token?grant_type=refresh_token&code=%s&client_id=%s", ecobeeUser.refreshToken, ecobeeApiKey)
+        }
+        log.debug("posting to refresh={},url={}", refresh, url)
+        Map resp = restTemplate.postForObject(url, [:], Map.class)
+        def a = 4
     }
 
     /*
-        protected void doLogin() {
-        getPrefs();
-
-        String url = "https://www.ecobee.com/home/authorize?response_type=ecobeePin&client_id=" + ECOBEE_APP_KEY + "&scope=smartRead";
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            Map resp = new Gson().fromJson(response, Map.class);
-                            String pinCode = resp.get("ecobeePin").toString();
-                            String code = resp.get("code").toString();
-                            Log.i(LOG_TAG, "Response is: " + response);
-                            Log.i(LOG_TAG, "PIN Code: " + pinCode);
-                            textViewStatusText.setText(String.format("From login:  PIN %s code %s", pinCode, code));
-
-                            SharedPreferences.Editor editor = settings.edit();
-                            editor.putString("ecobeePinCode", pinCode);
-                            editor.putString("ecobeeCode", code);
-                            editor.commit();
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        textViewStatusText.setText(String.format("Login failure: " + error.networkResponse.statusCode));
-                    }
-                }
-        );
-        queue.add(stringRequest);
-    }
-
     protected synchronized void doGetTokenIfNeeded(final Callable callback) {
         getPrefs();
 

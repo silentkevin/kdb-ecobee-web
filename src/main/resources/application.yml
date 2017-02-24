@@ -43,7 +43,7 @@ com:
   sksi:
     ecobee:
       devUserName: kevin
-      extraPermitAllExpressions: /**,/data/**
+      devMode: true
 
 ---
 

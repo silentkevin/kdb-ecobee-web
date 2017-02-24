@@ -3,6 +3,7 @@ package com.sksi.ecobee.controller
 import com.sksi.ecobee.data.EcobeeUser
 import com.sksi.ecobee.data.User
 import com.sksi.ecobee.data.UserRepository
+import com.sksi.ecobee.manager.EcobeeAuthManager
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -26,12 +27,25 @@ import groovy.util.logging.Slf4j
 class UserController {
     @Autowired UserRepository userRepository
     @Autowired RepositoryEntityLinks repositoryEntityLinks
+    @Autowired EcobeeAuthManager ecobeeAuthManager
 
     @Value('${com.sksi.ecobee.devUserName:#{null}}')
     String devUserName
 
     @RequestMapping(method = RequestMethod.GET)
     UserModel get() {
+        User user = getCurrentUser()
+        return getUserModel(user)
+    }
+
+    @RequestMapping(path = "/authorize", method = RequestMethod.POST)
+    UserModel authorize() {
+        User user = getCurrentUser()
+        ecobeeAuthManager.getAccessToken(user)
+        return getUserModel(user)
+    }
+
+    protected User getCurrentUser() {
         String userName = null
         SecurityContext context = SecurityContextHolder.getContext()
         Authentication authentication = context.getAuthentication()
@@ -47,7 +61,10 @@ class UserController {
         if (user == null) {
             throw new ResourceNotFoundException("user not found")
         }
+        return user
+    }
 
+    protected UserModel getUserModel(User user) {
         UserModel ret = new UserModel()
         ret.add(repositoryEntityLinks.linkToSingleResource(User.class, user.getId()))
         ret.add(repositoryEntityLinks.linkToSingleResource(EcobeeUser.class, user.getEcobeeUser().getId()))

@@ -5,7 +5,11 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const client = require('./client');
 const Iframe = require("react-iframe");
+const Button = require('react-bootstrap').Button;
+const ee = require('event-emitter');
 // end::vars[]
+
+let emitter = ee({}), listener;
 
 // tag::app[]
 class App extends React.Component {
@@ -14,7 +18,7 @@ class App extends React.Component {
         this.state = {users: [], user: {}, ecobeeUser: {}};
     }
 
-    componentDidMount() {
+    refreshUser() {
         client({method: 'GET', path: '/user'}).done(response => {
             response.entity.user.then(response => {
                 this.setState({user: response.entity});
@@ -22,6 +26,15 @@ class App extends React.Component {
             response.entity.ecobeeUser.then(response => {
                 this.setState({ecobeeUser: response.entity});
             });
+        });
+    }
+
+    componentDidMount() {
+        let upperThis = this;
+        upperThis.refreshUser();
+
+        emitter.on('refreshUser', listener = function (args) {
+            upperThis.refreshUser();
         });
     }
 
@@ -49,36 +62,36 @@ class UserAuthStatefulView extends React.Component {
 }
 // end::user-auth-stateful-view[]
 
-const onButtonPress = () => {
-    Alert.alert('Button has been pressed!');
-};
-
-// tag::user-auth-stateful-view[]
-const onClickAuthorize = function() {
-    debugger;
-};
-
+// tag::authorize-view[]
 class AuthorizeView extends React.Component {
+    onClickAuthorize() {
+        client({method: 'POST', path: '/user/authorize'}).done(response => {
+            emitter.emit('refreshUser');
+        });
+    }
+
     render() {
         let user = this.props.user;
         let ecobeeUser = this.props.ecobeeUser;
         return (
             <div>
                 <div>Please log in to www.ecobee.com below and enter the pin <b>{ecobeeUser.pinCode}</b> in the "Settings" tab and then "My Apps"</div>
-                <button onClick={onClickAuthorize}>
-                    I Did It You Bastard
-                </button>
+                <div>
+                    <Button bsStyle="success" bsSize="large" onClick={this.onClickAuthorize}>
+                        I Did It You Bastard
+                    </Button>
+                </div>
                 <EcobeeLoginFrame/>
             </div>
         );
     }
 }
-// end::user-auth-stateful-view[]
+// end::authorize-view[]
 
 class EcobeeLoginFrame extends React.Component {
     render() {
         return (
-            <Iframe url="https://www.ecobee.com/home/secure/settings.jsf" width="1024px" height="600px"/>
+            <Iframe url="https://www.ecobee.com/home/secure/settings.jsf" width="100%" height="600px"/>
         );
     }
 }

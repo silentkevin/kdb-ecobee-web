@@ -11,17 +11,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired private UserDetailsService userDetailsService;
 
-    @Value("${com.sksi.ecobee.extraPermitAllExpressions:''}")
-    String extraPermitAllExpressions;
+    @Value("${com.sksi.ecobee.devMode:false}")
+    Boolean devMode;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -30,33 +26,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String[] splits = extraPermitAllExpressions.split(",");
-        List<String> asList = new ArrayList<>(Arrays.asList("/logout", "/login"));
-        if (splits.length > 1) {
-            List<String> s = Arrays.asList(splits);
-            asList.addAll(s);
+        if (devMode) {
+            http.authorizeRequests().anyRequest().permitAll();
+            http.csrf().disable();
+        } else {
+            String[] permitAllExpression = {"/login", "/logout"};
+            http
+                    .authorizeRequests()
+                    .antMatchers(permitAllExpression).permitAll()
+                    .anyRequest().authenticated()
+                .and()
+                    .formLogin()
+                    .loginPage("/login")
+                    .permitAll()
+                .and()
+                    .logout()
+                    .permitAll();
         }
-        String[] permitAllExpression = asList.toArray(new String[asList.size()]);
-//        http
-//                .authorizeRequests()
-//                .antMatchers(permitAllExpression)
-//                .permitAll()
-//            .and()
-//                .authorizeRequests()
-//                .anyRequest()
-//                .authenticated();
-//        http.authorizeRequests().antMatchers(permitAllExpression).permitAll();
-        http
-                .authorizeRequests()
-                .antMatchers(permitAllExpression).permitAll()
-                .anyRequest().authenticated()
-            .and()
-                .formLogin()
-                .loginPage("/login")
-                .permitAll()
-            .and()
-                .logout()
-                .permitAll();
     }
 
     @Autowired
