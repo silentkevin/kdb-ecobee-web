@@ -30,6 +30,10 @@ module.exports = {
     module: {
         loaders: [
             {
+                include: /\.json$/,
+                loaders: ["json-loader"]
+            },
+            {
                 test: path.join(__dirname, '.'),
                 exclude: /(node_modules)/,
                 loader: 'babel',
@@ -39,5 +43,9 @@ module.exports = {
                 }
             }
         ]
+    },
+
+    resolve: {
+        extensions: ['', '.json', '.jsx', '.js']
     }
 };

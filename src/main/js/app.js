@@ -8,7 +8,7 @@ const Iframe = require("react-iframe");
 const Button = require('react-bootstrap').Button;
 const ButtonGroup = require('react-bootstrap').ButtonGroup;
 const ee = require('event-emitter');
-const moment = require('moment');
+const moment = require('moment-timezone');
 // end::vars[]
 
 let emitter = ee({}), listener;
@@ -153,8 +153,8 @@ class Thermostat extends React.Component {
     render() {
         let t = this.props.thermostat;
 
-        let holdUntil = t.holdUntil ? moment(t.holdUntil).format("hh:mm a") : '';
-        let holdUntilMoment = t.holdUntil ? moment(t.holdUntil) : null;
+        let holdUntilMoment = t.holdUntil ? moment(t.holdUntil).tz("America/New_York") : null;
+        let holdUntil = holdUntilMoment ? holdUntilMoment.format("hh:mm a") : '';
         if (holdUntilMoment) {
             let diff = holdUntilMoment.diff(moment());
             let duration = moment.duration(diff);
