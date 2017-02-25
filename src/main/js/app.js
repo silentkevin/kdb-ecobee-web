@@ -101,7 +101,7 @@ class ThermostatListView extends React.Component {
             <div>
                 {thermostats}
                 <div>
-                    <Button bsStyle="success" onClick={this.onClickRefresh}>
+                    <Button bsStyle="success" bsSize="large" onClick={this.onClickRefresh}>
                         Refresh
                     </Button>
                 </div>
@@ -170,6 +170,7 @@ class Thermostat extends React.Component {
                 <Button
                     key={deg}
                     bsStyle={t.desiredTemperature === deg ? "info" : "default"}
+                    bsSize="large"
                     onClick={this.onClickDesiredTemperature.bind(this, deg)}
                 >
                     {deg}
@@ -180,6 +181,7 @@ class Thermostat extends React.Component {
                 <Button
                     key={holdMode}
                     bsStyle={t.holdMode === holdMode ? "info" : "default"}
+                    bsSize="large"
                     onClick={this.onClickHoldMode.bind(this, holdMode)}
                 >
                     {holdMode}
