@@ -32,18 +32,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         if (devMode) {
             http.authorizeRequests().anyRequest().permitAll();
         } else {
-            String[] permitAllExpression = {"/login", "/logout"};
-            http
-                    .authorizeRequests()
-                    .antMatchers(permitAllExpression).permitAll()
+            http.authorizeRequests()
                     .anyRequest().authenticated()
                 .and()
-                    .formLogin()
-                    .loginPage("/login")
-                    .permitAll()
-                .and()
-                    .logout()
-                    .permitAll();
+                    .httpBasic();
+//            String[] permitAllExpression = {"/login", "/logout"};
+//            http
+//                    .authorizeRequests()
+//                    .antMatchers(permitAllExpression).permitAll()
+//                    .anyRequest().authenticated()
+//                .and()
+//                    .formLogin()
+//                    .loginPage("/login")
+//                    .permitAll()
+//                .and()
+//                    .logout()
+//                    .permitAll();
         }
     }
 
