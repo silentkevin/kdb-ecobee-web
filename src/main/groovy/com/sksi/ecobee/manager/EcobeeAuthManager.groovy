@@ -49,7 +49,7 @@ class EcobeeAuthManager {
             return
         }
 
-        String url = "https://www.ecobee.com/home/authorize?response_type=ecobeePin&client_id=" + ecobeeApiKey + "&scope=smartRead";
+        String url = "https://www.ecobee.com/home/authorize?response_type=ecobeePin&client_id=" + ecobeeApiKey + "&scope=smartWrite";
         log.debug("initUser getting url={}", url)
         EcobeeAuthorizeResponse resp = restTemplate.getForObject(url, EcobeeAuthorizeResponse.class)
 
@@ -85,13 +85,17 @@ class EcobeeAuthManager {
         updateThermostats(ecobeeUser)
     }
 
-    void updateThermostats(EcobeeUser ecobeeUser) {
+    void refreshAccessTokenIfNeeded(EcobeeUser ecobeeUser) {
         DateTime tenMinutesBeforeExpiration = new DateTime(ecobeeUser.getAccessTokenExpirationDate()).minusMinutes(10)
         if (tenMinutesBeforeExpiration.isBefore(DateTime.now())) {
             log.debug("access token doesn't need refresh tenMinutesBeforeExpiration={},accessToken={}",
                 tenMinutesBeforeExpiration, ecobeeUser.getAccessToken())
             this.getAccessToken(ecobeeUser.user, true)
         }
+    }
+
+    void updateThermostats(EcobeeUser ecobeeUser) {
+        refreshAccessTokenIfNeeded(ecobeeUser)
 
         Map selection = [
             "selection": [
@@ -117,7 +121,9 @@ class EcobeeAuthManager {
 
         HttpEntity<String> entity = new HttpEntity<String>("parameters", headers)
 
-        //ResponseEntity<Map> ret = restTemplate.exchange(uri, HttpMethod.GET, entity, Map.class)
+        //ResponseEntity<Map> mapRet = restTemplate.exchange(uri, HttpMethod.GET, entity, Map.class)
+        //def a = 4
+
         ResponseEntity<ThermostatListModel> ret = restTemplate.exchange(uri, HttpMethod.GET, entity, ThermostatListModel.class)
         ThermostatListModel model = ret.getBody()
         for (ThermostatModel t : model.thermostats) {
@@ -129,6 +135,7 @@ class EcobeeAuthManager {
                 thermostat = new Thermostat(name: t.name)
                 ecobeeUser.thermostats.add(thermostat)
                 thermostat.setEcobeeUser(ecobeeUser)
+                thermostat.ecobeeId = t.identifier
             }
             thermostat.hvacMode = t.settings.hvacMode
             thermostat.currentTemperature = t.runtime.actualTemperature / 10.0
@@ -137,6 +144,8 @@ class EcobeeAuthManager {
             BigDecimal dt = desired / 10.0
             dt = dt.setScale(0, RoundingMode.HALF_UP)
             thermostat.desiredTemperature = dt.intValue()
+
+            thermostat.holdAction = t.settings.holdAction
 
             String holdMode = "Schedule"
             EventModel holdEvent = t.getEvents().find { it.type == "hold" }
@@ -159,6 +168,42 @@ class EcobeeAuthManager {
             thermostat.holdMode = holdMode
         }
         ecobeeUserRepository.save(ecobeeUser)
+    }
+
+    void setHold(Thermostat thermostat, Integer desiredTemperature, String holdType, Integer hours) {
+        refreshAccessTokenIfNeeded(thermostat.ecobeeUser)
+
+        Map body = [
+            "selection": [
+                "selectionType": "registered",
+                "selectionMatch": ""
+            ],
+            "functions": [
+                [
+                    "type": "setHold",
+                    "params": [
+                        "holdType": holdType,
+                        "heatHoldTemp": desiredTemperature * 10,
+                        "coolHoldTemp": desiredTemperature * 10,
+                        "holdHours": hours
+                    ]
+                ]
+            ]
+        ]
+        String bodyAsJson = objectMapper.writeValueAsString(body)
+
+        HttpHeaders headers = new HttpHeaders()
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON))
+        headers.set("Authorization", "Bearer " + thermostat.ecobeeUser.getAccessToken())
+        HttpEntity<String> entity = new HttpEntity<String>(bodyAsJson, headers)
+
+        String url = "https://api.ecobee.com/1/thermostat?format=json"
+        ResponseEntity<Map> resp = restTemplate.exchange(
+            url,
+            HttpMethod.POST,
+            entity,
+            Map.class
+        )
     }
 
     /*

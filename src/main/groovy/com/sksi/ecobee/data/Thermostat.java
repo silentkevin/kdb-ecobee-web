@@ -17,12 +17,14 @@ import java.util.Date;
 public class Thermostat {
     private String id;
     private String name;
+    private String ecobeeId;
     private BigDecimal currentTemperature;
     private BigDecimal currentHumidity;
     private Integer desiredTemperature;
     private String hvacMode;
     private String holdMode;  // one of "Schedule", "2H", "4H", "8H", "NT", "Hold"
     private Date holdUntil;
+    private String holdAction;
 
     private Long version;
 
@@ -67,6 +69,13 @@ public class Thermostat {
         this.desiredTemperature = desiredTemperature;
     }
 
+    public String getEcobeeId() {
+        return ecobeeId;
+    }
+    public void setEcobeeId(String ecobeeId) {
+        this.ecobeeId = ecobeeId;
+    }
+
     public String getHvacMode() {
         return hvacMode;
     }
@@ -86,6 +95,13 @@ public class Thermostat {
     }
     public void setHoldUntil(Date holdUntil) {
         this.holdUntil = holdUntil;
+    }
+
+    public String getHoldAction() {
+        return holdAction;
+    }
+    public void setHoldAction(String holdAction) {
+        this.holdAction = holdAction;
     }
 
     @ManyToOne(optional = false)

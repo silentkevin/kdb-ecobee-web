@@ -79,12 +79,7 @@ class ThermostatListView extends React.Component {
     }
 
     componentDidMount() {
-        let upperThis = this;
-        upperThis.refreshThermostats();
-
-        emitter.on('refreshThermostats', listener = function (args) {
-            upperThis.refreshThermostats();
-        });
+        this.refreshThermostats();
     }
 
     refreshThermostats() {
@@ -99,8 +94,6 @@ class ThermostatListView extends React.Component {
     }
 
     render() {
-        let user = this.props.user;
-        let ecobeeUser = this.props.ecobeeUser;
         let thermostats = this.state.thermostats.map(thermostat =>
             <Thermostat key={thermostat._links.self.href} thermostat={thermostat}/>
         );
@@ -120,18 +113,81 @@ class ThermostatListView extends React.Component {
 
 // tag::thermostat[]
 class Thermostat extends React.Component {
+    constructor(props) {
+        super(props);
+        this.desiredTemperature = 0;
+        this.holdMode = null;
+    }
+
+    setHold() {
+        let desiredTemp = this.desiredTemperature;
+        let holdMode = this.holdMode;
+        if (holdMode === "Schedule") {
+            holdMode = this.props.thermostat.holdAction;
+        }
+        let entity = {
+            thermostatName: this.props.thermostat.name,
+            desiredTemperature: desiredTemp,
+            holdMode: holdMode
+        };
+        client({method: 'POST', path: '/user/hold', entity: entity, headers: {'Content-Type': 'application/hal+json'}}).done(response => {
+            emitter.emit('refreshUser');
+        });
+    }
+
+    onClickDesiredTemperature(deg) {
+        this.desiredTemperature = deg;
+        this.setHold();
+    }
+
+    onClickHoldMode(holdMode) {
+        this.holdMode = holdMode;
+        this.setHold();
+    }
+
+    componentWillMount() {
+        this.desiredTemperature = this.props.thermostat.desiredTemperature;
+        this.holdMode =  this.props.thermostat.holdMode;
+    }
+
     render() {
         let t = this.props.thermostat;
+
         let holdUntil = t.holdUntil ? moment(t.holdUntil).format("hh:mm a") : '';
+        let holdUntilMoment = t.holdUntil ? moment(t.holdUntil) : null;
+        if (holdUntilMoment) {
+            let diff = holdUntilMoment.diff(moment());
+            let duration = moment.duration(diff);
+            let f = duration.humanize();
+            let millis = duration.asMilliseconds();
+            if (millis > 86400000) {
+                holdUntil = "forever"
+            }
+        }
+
         let degrees = [66, 68, 70, 72, 74, 76, 78, 80, 90];
         if (t.hvacMode === "heat") {
             degrees = [50, 58, 60, 62, 64, 66, 68, 70];
         }
         let tempButtons = degrees.map(deg => {
-            return ( <Button key={deg} bsStyle={t.desiredTemperature === deg ? "info" : "default"}>{deg}</Button> );
+            return (
+                <Button
+                    key={deg}
+                    bsStyle={t.desiredTemperature === deg ? "info" : "default"}
+                    onClick={this.onClickDesiredTemperature.bind(this, deg)}
+                >
+                    {deg}
+                </Button> );
         });
         let timeButtons = ["Schedule", "2H", "4H", "8H", "NT", "Hold"].map(holdMode => {
-            return ( <Button key={holdMode} bsStyle={t.holdMode === holdMode ? "info" : "default"}>{holdMode}</Button> );
+            return (
+                <Button
+                    key={holdMode}
+                    bsStyle={t.holdMode === holdMode ? "info" : "default"}
+                    onClick={this.onClickHoldMode.bind(this, holdMode)}
+                >
+                    {holdMode}
+                </Button> );
         });
         return (
             <div>
@@ -139,6 +195,7 @@ class Thermostat extends React.Component {
                 <div><span>Current Temperature:</span> <span>{t.currentTemperature}°F</span></div>
                 <div><span>Desired Temperature:</span> <span>{t.desiredTemperature}°F</span></div>
                 <div><span>Hold Until:</span> <span>{holdUntil}</span></div>
+                <div><span>Hold Action:</span> <span>{t.holdAction}</span></div>
                 <div><span>HVAC Mode:</span> <span>{t.hvacMode}</span></div>
                 <div>
                     <ButtonGroup>

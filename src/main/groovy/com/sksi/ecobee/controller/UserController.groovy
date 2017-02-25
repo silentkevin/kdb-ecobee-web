@@ -1,6 +1,8 @@
 package com.sksi.ecobee.controller
 
 import com.sksi.ecobee.data.EcobeeUser
+import com.sksi.ecobee.data.Thermostat
+import com.sksi.ecobee.data.ThermostatRepository
 import com.sksi.ecobee.data.User
 import com.sksi.ecobee.data.UserRepository
 import com.sksi.ecobee.manager.EcobeeAuthManager
@@ -12,6 +14,7 @@ import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
@@ -27,6 +30,7 @@ class UserController {
     @Autowired UserRepository userRepository
     @Autowired RepositoryEntityLinks repositoryEntityLinks
     @Autowired EcobeeAuthManager ecobeeAuthManager
+    @Autowired ThermostatRepository thermostatRepository
 
     @Value('${com.sksi.ecobee.devUserName:#{null}}')
     String devUserName
@@ -45,6 +49,35 @@ class UserController {
         User user = getCurrentUser()
         ecobeeAuthManager.getAccessToken(user)
         return getUserModel(user)
+    }
+
+    @RequestMapping(path = "/hold", method = RequestMethod.POST)
+    HoldModel hold(@RequestBody HoldModel holdModel) {
+        User user = getCurrentUser()
+        Thermostat thermostat = user.ecobeeUser.thermostats.find { holdModel.thermostatName == it.name }
+        String holdType = holdModel.holdMode
+        Integer hours = null
+        if (holdType == "Schedule") {
+            holdType = thermostat.getHoldAction()
+        }
+        if (holdType == "2H" || holdType == "useEndTime2Hour") {
+            holdType = "holdHours"
+            hours = 2
+        } else if (holdType == "4H" || holdType == "useEndTime4hour") {
+            holdType = "holdHours"
+            hours = 4
+        } else if (holdType == "8H" || holdType == "useEndTime8Hour") {
+            holdType = "holdHours"
+            hours = 8
+        } else if (holdType == "NT" || holdType == "nextPeriod" || holdType == "nextTransition") {
+            holdType = "nextTransition"
+            hours = null
+        } else if (holdType == "Hold" || holdType == "indefinite") {
+            holdType = "indefinite"
+            hours = null
+        }
+        ecobeeAuthManager.setHold(thermostat, holdModel.desiredTemperature, holdType, hours)
+        return holdModel
     }
 
     protected User getCurrentUser() {
