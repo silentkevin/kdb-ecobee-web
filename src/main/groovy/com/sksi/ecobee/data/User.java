@@ -34,6 +34,7 @@ public class User {
     private boolean enabled = true;
     private Set<Role> roles;
     private EcobeeUser ecobeeUser;
+    private String timeZone = "America/New_York";
     private Long version;
 
     @Id
@@ -82,6 +83,13 @@ public class User {
     }
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getTimeZone() {
+        return timeZone;
+    }
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
     }
 
     @ManyToMany

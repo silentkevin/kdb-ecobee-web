@@ -9,9 +9,11 @@ import com.sksi.ecobee.data.UserRepository
 import com.sksi.ecobee.manager.model.EcobeeAccessTokenResponse
 import com.sksi.ecobee.manager.model.EcobeeAuthorizeResponse
 import com.sksi.ecobee.manager.model.EventModel
+import com.sksi.ecobee.manager.model.ProgramModel
 import com.sksi.ecobee.manager.model.ThermostatListModel
 import com.sksi.ecobee.manager.model.ThermostatModel
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -97,13 +99,16 @@ class EcobeeAuthManager {
     void updateThermostats(EcobeeUser ecobeeUser) {
         refreshAccessTokenIfNeeded(ecobeeUser)
 
+        DateTime now = DateTime.now().withZone(DateTimeZone.forID(ecobeeUser.user.getTimeZone()))
+
         Map selection = [
             "selection": [
                 "selectionType": "registered",
                 "selectionMatch": "",
                 "includeEvents": true,
                 "includeRuntime": true,
-                "includeSettings": true
+                "includeSettings": true,
+                "includeProgram": true
             ]
         ]
         String selectionStr = objectMapper.writeValueAsString(selection)
@@ -121,8 +126,8 @@ class EcobeeAuthManager {
 
         HttpEntity<String> entity = new HttpEntity<String>("parameters", headers)
 
-        //ResponseEntity<Map> mapRet = restTemplate.exchange(uri, HttpMethod.GET, entity, Map.class)
-        //def a = 4
+//        ResponseEntity<Map> mapRet = restTemplate.exchange(uri, HttpMethod.GET, entity, Map.class)
+//        def a = 4
 
         ResponseEntity<ThermostatListModel> ret = restTemplate.exchange(uri, HttpMethod.GET, entity, ThermostatListModel.class)
         ThermostatListModel model = ret.getBody()
@@ -141,6 +146,11 @@ class EcobeeAuthManager {
             thermostat.currentTemperature = t.runtime.actualTemperature / 10.0
             Integer desired = thermostat.hvacMode == "heat" ? t.runtime.desiredHeat : t.runtime.desiredCool
 
+            List<DateTime> programChangeTimes = getProgramChangeTimes(ecobeeUser.user, t.getProgram())
+            List<DateTime> programChangeTimesInTheFuture = programChangeTimes.findAll {
+                it.isAfter(now)
+            } as List<DateTime>
+
             BigDecimal dt = desired / 10.0
             dt = dt.setScale(0, RoundingMode.HALF_UP)
             thermostat.desiredTemperature = dt.intValue()
@@ -150,16 +160,30 @@ class EcobeeAuthManager {
             String holdMode = "Schedule"
             EventModel holdEvent = t.getEvents().find { it.type == "hold" }
             if (holdEvent) {
-                DateTime startDate = holdEvent.getStartDate()
-                DateTime endDate = holdEvent.getEndDate()
+                DateTimeZone dateTimeZone = DateTimeZone.forID(ecobeeUser.user.getTimeZone())
+                DateTime startDate = holdEvent.getStartDate(dateTimeZone)
+                DateTime endDate = holdEvent.getEndDate(dateTimeZone)
 
-                Long diffInMillis = endDate.getMillis() - startDate.getMillis()
-                BigDecimal diffInSeconds = diffInMillis / 1000;
-                BigDecimal diffInHours = diffInSeconds / 3600;
-                if (diffInHours > 0) { holdMode = "2H"; }
-                if (diffInHours > 2.1) { holdMode = "4H"; }
-                if (diffInHours > 4.1) { holdMode = "8H"; }
-                if (diffInHours > 8.1) { holdMode = "Hold"; }
+                DateTime nextProgramChangeTime = programChangeTimesInTheFuture ? programChangeTimesInTheFuture.get(0) : null
+                if (nextProgramChangeTime && nextProgramChangeTime == endDate) {
+                    holdMode = "NT"
+                } else {
+                    Long diffInMillis = endDate.getMillis() - startDate.getMillis()
+                    BigDecimal diffInSeconds = diffInMillis / 1000;
+                    BigDecimal diffInHours = diffInSeconds / 3600;
+                    if (diffInHours > 0) {
+                        holdMode = "2H";
+                    }
+                    if (diffInHours > 2.1) {
+                        holdMode = "4H";
+                    }
+                    if (diffInHours > 4.1) {
+                        holdMode = "8H";
+                    }
+                    if (diffInHours > 8.1) {
+                        holdMode = "Hold";
+                    }
+                }
 
                 thermostat.holdUntil = endDate.toDate()
             } else {
@@ -168,6 +192,31 @@ class EcobeeAuthManager {
             thermostat.holdMode = holdMode
         }
         ecobeeUserRepository.save(ecobeeUser)
+    }
+
+    protected List<DateTime> getProgramChangeTimes(User user, ProgramModel programModel) {
+        List<DateTime> ret = []
+        DateTime now = DateTime.now().withZone(DateTimeZone.forID(user.getTimeZone()))
+        String lastClimate = null
+        DateTime currentClimateDate = now.toDateMidnight().toDateTime()
+        Integer dayOfWeek = now.dayOfWeek().get()
+
+        for (int i = 0; i < 5; i++) {
+            Integer scheduleIndex = dayOfWeek - 1
+            List<String> todaysTextSchedule = programModel.schedule[scheduleIndex]
+            for (String climate : todaysTextSchedule) {
+                if (climate != lastClimate) {
+                    ret.add(currentClimateDate)
+                }
+                lastClimate = climate
+                currentClimateDate = currentClimateDate.plusMinutes(30)
+            }
+            dayOfWeek++
+            if (dayOfWeek == 8) {
+                dayOfWeek = 1
+            }
+        }
+        return ret
     }
 
     void setHold(Thermostat thermostat, Integer desiredTemperature, String holdType, Integer hours) {

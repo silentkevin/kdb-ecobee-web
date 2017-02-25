@@ -2,9 +2,15 @@ package com.sksi.ecobee.manager.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 
-import java.text.SimpleDateFormat
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 
+@CompileStatic
+@Slf4j
 class EventModel {
     String type
     String name
@@ -23,11 +29,20 @@ class EventModel {
     @JsonProperty("endTime")
     String endDateTimePart
 
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    DateTime getStartDate() {
-        return new DateTime(sdf.parse(startDateDatePart + " " + startDateTimePart))
+    DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    DateTime getStartDate(DateTimeZone dateTimeZone) {
+        String d = "${startDateDatePart} ${startDateTimePart}"
+        log.debug("about to parse d={},zone={}", d, dateTimeZone)
+        DateTime ret = dateTimeFormatter.withZone(dateTimeZone).parseDateTime(d)
+        log.debug("parsed ret={},d={},zone={}", ret, d, dateTimeZone)
+        return ret
     }
-    DateTime getEndDate() {
-        return new DateTime(sdf.parse(endDateDatePart + " " + endDateTimePart))
+
+    DateTime getEndDate(DateTimeZone dateTimeZone) {
+        String d = "${endDateDatePart} ${endDateTimePart}"
+        log.debug("about to parse d={},zone={}", d, dateTimeZone)
+        DateTime ret = dateTimeFormatter.withZone(dateTimeZone).parseDateTime(d)
+        log.debug("parsed ret={},d={},zone={}", ret, d, dateTimeZone)
+        return ret
     }
 }

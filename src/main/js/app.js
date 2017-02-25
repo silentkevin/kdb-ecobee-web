@@ -155,6 +155,7 @@ class Thermostat extends React.Component {
 
         let holdUntilMoment = t.holdUntil ? moment(t.holdUntil).tz("America/New_York") : null;
         let holdUntil = holdUntilMoment ? holdUntilMoment.format("hh:mm a") : '';
+        console.log("holdUntil", t.holdUntil, holdUntilMoment.format());
         if (holdUntilMoment) {
             let diff = holdUntilMoment.diff(moment());
             let duration = moment.duration(diff);

@@ -12,4 +12,6 @@ class ThermostatModel {
     ThermostatRuntimeModel runtime
 
     List<EventModel> events
+
+    ProgramModel program
 }
