@@ -150,7 +150,6 @@ class Thermostat extends React.Component {
 
         let holdUntilMoment = t.holdUntil ? moment(t.holdUntil).tz("America/New_York") : null;
         let holdUntil = holdUntilMoment ? holdUntilMoment.format("hh:mm a") : '';
-        console.log("holdUntil", t.holdUntil, holdUntilMoment ? holdUntilMoment.format() : null);
         if (holdUntilMoment) {
             let diff = holdUntilMoment.diff(moment());
             let duration = moment.duration(diff);
@@ -173,10 +172,10 @@ class Thermostat extends React.Component {
                     bsSize="large"
                     onClick={this.onClickDesiredTemperature.bind(this, deg)}
                 >
-                    {deg}
+                    {deg}°F
                 </Button> );
         });
-        let timeButtons = ["Schedule", "2H", "4H", "8H", "NT", "Hold"].map(holdMode => {
+        let timeButtons = ["Resume Schedule", "2 Hours", "4 Hours", "8 Hours", "Next Transition", "Hold Forever"].map(holdMode => {
             return (
                 <Button
                     key={holdMode}
@@ -196,14 +195,16 @@ class Thermostat extends React.Component {
                 <div><span>Hold Action:</span> <span>{t.holdAction}</span></div>
                 <div><span>HVAC Mode:</span> <span>{t.hvacMode}</span></div>
                 <div>
-                    <ButtonGroup>
-                        {tempButtons}
-                    </ButtonGroup>
-                </div>
-                <div>
-                    <ButtonGroup>
-                        {timeButtons}
-                    </ButtonGroup>
+                    <span>
+                        <ButtonGroup vertical>
+                            {tempButtons}
+                        </ButtonGroup>
+                    </span>
+                    <span>
+                        <ButtonGroup vertical>
+                            {timeButtons}
+                        </ButtonGroup>
+                    </span>
                 </div>
             </div>
         );

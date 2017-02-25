@@ -157,7 +157,7 @@ class EcobeeAuthManager {
 
             thermostat.holdAction = t.settings.holdAction
 
-            String holdMode = "Schedule"
+            String holdMode = "Resume Schedule"
             EventModel holdEvent = t.getEvents().find { it.type == "hold" }
             if (holdEvent) {
                 DateTimeZone dateTimeZone = DateTimeZone.forID(ecobeeUser.user.getTimeZone())
@@ -166,22 +166,22 @@ class EcobeeAuthManager {
 
                 DateTime nextProgramChangeTime = programChangeTimesInTheFuture ? programChangeTimesInTheFuture.get(0) : null
                 if (nextProgramChangeTime && nextProgramChangeTime == endDate) {
-                    holdMode = "NT"
+                    holdMode = "Next Transition"
                 } else {
                     Long diffInMillis = endDate.getMillis() - startDate.getMillis()
                     BigDecimal diffInSeconds = diffInMillis / 1000;
                     BigDecimal diffInHours = diffInSeconds / 3600;
                     if (diffInHours > 0) {
-                        holdMode = "2H";
+                        holdMode = "2 Hours";
                     }
                     if (diffInHours > 2.1) {
-                        holdMode = "4H";
+                        holdMode = "4 Hours";
                     }
                     if (diffInHours > 4.1) {
-                        holdMode = "8H";
+                        holdMode = "8 Hours";
                     }
                     if (diffInHours > 8.1) {
-                        holdMode = "Hold";
+                        holdMode = "Hold Forever";
                     }
                 }
 

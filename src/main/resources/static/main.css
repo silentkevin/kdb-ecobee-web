@@ -2,7 +2,9 @@ body {
     margin: 10px;
 }
 
-.btn-group {
+.btn-group-vertical {
     margin-top: 10px;
     margin-bottom: 10px;
+    margin-right: 10px;
+    vertical-align: top;
 }

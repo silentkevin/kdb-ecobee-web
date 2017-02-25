@@ -57,22 +57,22 @@ class UserController {
         Thermostat thermostat = user.ecobeeUser.thermostats.find { holdModel.thermostatName == it.name }
         String holdType = holdModel.holdMode
         Integer hours = null
-        if (holdType == "Schedule") {
+        if (holdType == "Resume Schedule") {
             holdType = null
         } else {
-            if (holdType == "2H" || holdType == "useEndTime2Hour") {
+            if (holdType == "2 Hours" || holdType == "useEndTime2Hour") {
                 holdType = "holdHours"
                 hours = 2
-            } else if (holdType == "4H" || holdType == "useEndTime4hour") {
+            } else if (holdType == "4 Hours" || holdType == "useEndTime4hour") {
                 holdType = "holdHours"
                 hours = 4
-            } else if (holdType == "8H" || holdType == "useEndTime8Hour") {
+            } else if (holdType == "8 Hours" || holdType == "useEndTime8Hour") {
                 holdType = "holdHours"
                 hours = 8
-            } else if (holdType == "NT" || holdType == "nextPeriod" || holdType == "nextTransition") {
+            } else if (holdType == "Next Transition" || holdType == "nextPeriod" || holdType == "nextTransition") {
                 holdType = "nextTransition"
                 hours = null
-            } else if (holdType == "Hold" || holdType == "indefinite") {
+            } else if (holdType == "Hold Forever" || holdType == "indefinite") {
                 holdType = "indefinite"
                 hours = null
             }

@@ -22,7 +22,7 @@ public class Thermostat {
     private BigDecimal currentHumidity;
     private Integer desiredTemperature;
     private String hvacMode;
-    private String holdMode;  // one of "Schedule", "2H", "4H", "8H", "NT", "Hold"
+    private String holdMode;  // one of "Resume Schedule", "2 Hours", "4 Hours", "8 Hours", "Next Transition", "Hold Forever"
     private Date holdUntil;
     private String holdAction;
 
