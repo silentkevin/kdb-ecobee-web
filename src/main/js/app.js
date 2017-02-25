@@ -6,7 +6,9 @@ const ReactDOM = require('react-dom');
 const client = require('./client');
 const Iframe = require("react-iframe");
 const Button = require('react-bootstrap').Button;
+const ButtonGroup = require('react-bootstrap').ButtonGroup;
 const ee = require('event-emitter');
+const moment = require('moment');
 // end::vars[]
 
 let emitter = ee({}), listener;
@@ -15,10 +17,11 @@ let emitter = ee({}), listener;
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {users: [], user: {}, ecobeeUser: {}};
+        this.state = {user: {}, ecobeeUser: {}};
     }
 
     refreshUser() {
+        this.state = {user: {}, ecobeeUser: {}};
         client({method: 'GET', path: '/user'}).done(response => {
             response.entity.user.then(response => {
                 this.setState({user: response.entity});
@@ -92,7 +95,7 @@ class ThermostatListView extends React.Component {
     }
 
     onClickRefresh() {
-        emitter.emit("refreshThermostats");
+        emitter.emit("refreshUser");
     }
 
     render() {
@@ -105,7 +108,7 @@ class ThermostatListView extends React.Component {
             <div>
                 {thermostats}
                 <div>
-                    <Button bsStyle="success" bsSize="large" onClick={this.onClickRefresh}>
+                    <Button bsStyle="success" onClick={this.onClickRefresh}>
                         Refresh
                     </Button>
                 </div>
@@ -118,12 +121,35 @@ class ThermostatListView extends React.Component {
 // tag::thermostat[]
 class Thermostat extends React.Component {
     render() {
-        var t = this.props.thermostat;
+        let t = this.props.thermostat;
+        let holdUntil = t.holdUntil ? moment(t.holdUntil).format("hh:mm a") : '';
+        let degrees = [66, 68, 70, 72, 74, 76, 78, 80, 90];
+        if (t.hvacMode === "heat") {
+            degrees = [50, 58, 60, 62, 64, 66, 68, 70];
+        }
+        let tempButtons = degrees.map(deg => {
+            return ( <Button key={deg} bsStyle={t.desiredTemperature === deg ? "info" : "default"}>{deg}</Button> );
+        });
+        let timeButtons = ["Schedule", "2H", "4H", "8H", "NT", "Hold"].map(holdMode => {
+            return ( <Button key={holdMode} bsStyle={t.holdMode === holdMode ? "info" : "default"}>{holdMode}</Button> );
+        });
         return (
             <div>
                 <div><span>Name:</span> <span>{t.name}</span></div>
-                <div><span>Current Temperature:</span> <span>{t.currentTemperature}</span></div>
+                <div><span>Current Temperature:</span> <span>{t.currentTemperature}°F</span></div>
+                <div><span>Desired Temperature:</span> <span>{t.desiredTemperature}°F</span></div>
+                <div><span>Hold Until:</span> <span>{holdUntil}</span></div>
                 <div><span>HVAC Mode:</span> <span>{t.hvacMode}</span></div>
+                <div>
+                    <ButtonGroup>
+                        {tempButtons}
+                    </ButtonGroup>
+                </div>
+                <div>
+                    <ButtonGroup>
+                        {timeButtons}
+                    </ButtonGroup>
+                </div>
             </div>
         );
     }

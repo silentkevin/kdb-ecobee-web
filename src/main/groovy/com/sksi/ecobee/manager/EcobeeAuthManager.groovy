@@ -8,6 +8,7 @@ import com.sksi.ecobee.data.User
 import com.sksi.ecobee.data.UserRepository
 import com.sksi.ecobee.manager.model.EcobeeAccessTokenResponse
 import com.sksi.ecobee.manager.model.EcobeeAuthorizeResponse
+import com.sksi.ecobee.manager.model.EventModel
 import com.sksi.ecobee.manager.model.ThermostatListModel
 import com.sksi.ecobee.manager.model.ThermostatModel
 import org.joda.time.DateTime
@@ -26,6 +27,8 @@ import org.springframework.web.util.UriComponentsBuilder
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+
+import java.math.RoundingMode
 
 @Component
 @Transactional
@@ -106,6 +109,7 @@ class EcobeeAuthManager {
             .build().toUri();
 
         String url = uri.toURL().toString()
+        log.debug("getting url={}", url)
 
         HttpHeaders headers = new HttpHeaders()
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON))
@@ -113,8 +117,8 @@ class EcobeeAuthManager {
 
         HttpEntity<String> entity = new HttpEntity<String>("parameters", headers)
 
+        //ResponseEntity<Map> ret = restTemplate.exchange(uri, HttpMethod.GET, entity, Map.class)
         ResponseEntity<ThermostatListModel> ret = restTemplate.exchange(uri, HttpMethod.GET, entity, ThermostatListModel.class)
-//        ResponseEntity<Map> ret = restTemplate.exchange(uri, HttpMethod.GET, entity, Map.class)
         ThermostatListModel model = ret.getBody()
         for (ThermostatModel t : model.thermostats) {
             Thermostat thermostat = ecobeeUser.thermostats?.find { it.name == t.name }
@@ -128,6 +132,31 @@ class EcobeeAuthManager {
             }
             thermostat.hvacMode = t.settings.hvacMode
             thermostat.currentTemperature = t.runtime.actualTemperature / 10.0
+            Integer desired = thermostat.hvacMode == "heat" ? t.runtime.desiredHeat : t.runtime.desiredCool
+
+            BigDecimal dt = desired / 10.0
+            dt = dt.setScale(0, RoundingMode.HALF_UP)
+            thermostat.desiredTemperature = dt.intValue()
+
+            String holdMode = "Schedule"
+            EventModel holdEvent = t.getEvents().find { it.type == "hold" }
+            if (holdEvent) {
+                DateTime startDate = holdEvent.getStartDate()
+                DateTime endDate = holdEvent.getEndDate()
+
+                Long diffInMillis = endDate.getMillis() - startDate.getMillis()
+                BigDecimal diffInSeconds = diffInMillis / 1000;
+                BigDecimal diffInHours = diffInSeconds / 3600;
+                if (diffInHours > 0) { holdMode = "2H"; }
+                if (diffInHours > 2.1) { holdMode = "4H"; }
+                if (diffInHours > 4.1) { holdMode = "8H"; }
+                if (diffInHours > 8.1) { holdMode = "Hold"; }
+
+                thermostat.holdUntil = endDate.toDate()
+            } else {
+                thermostat.holdUntil = null
+            }
+            thermostat.holdMode = holdMode
         }
         ecobeeUserRepository.save(ecobeeUser)
     }

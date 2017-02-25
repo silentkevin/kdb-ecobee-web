@@ -10,4 +10,6 @@ class ThermostatModel {
     ThermostatSettingsModel settings
 
     ThermostatRuntimeModel runtime
+
+    List<EventModel> events
 }
