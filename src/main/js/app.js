@@ -115,16 +115,11 @@ class ThermostatListView extends React.Component {
 class Thermostat extends React.Component {
     constructor(props) {
         super(props);
-        this.desiredTemperature = 0;
-        this.holdMode = null;
     }
 
     setHold() {
         let desiredTemp = this.desiredTemperature;
         let holdMode = this.holdMode;
-        if (holdMode === "Schedule") {
-            holdMode = this.props.thermostat.holdAction;
-        }
         let entity = {
             thermostatName: this.props.thermostat.name,
             desiredTemperature: desiredTemp,
@@ -147,7 +142,7 @@ class Thermostat extends React.Component {
 
     componentWillMount() {
         this.desiredTemperature = this.props.thermostat.desiredTemperature;
-        this.holdMode =  this.props.thermostat.holdMode;
+        this.holdMode = this.props.thermostat.holdAction;
     }
 
     render() {
@@ -155,7 +150,7 @@ class Thermostat extends React.Component {
 
         let holdUntilMoment = t.holdUntil ? moment(t.holdUntil).tz("America/New_York") : null;
         let holdUntil = holdUntilMoment ? holdUntilMoment.format("hh:mm a") : '';
-        console.log("holdUntil", t.holdUntil, holdUntilMoment.format());
+        console.log("holdUntil", t.holdUntil, holdUntilMoment ? holdUntilMoment.format() : null);
         if (holdUntilMoment) {
             let diff = holdUntilMoment.diff(moment());
             let duration = moment.duration(diff);

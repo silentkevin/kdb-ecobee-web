@@ -222,23 +222,35 @@ class EcobeeAuthManager {
     void setHold(Thermostat thermostat, Integer desiredTemperature, String holdType, Integer hours) {
         refreshAccessTokenIfNeeded(thermostat.ecobeeUser)
 
-        Map body = [
+        Map<String, Object> body = [
             "selection": [
                 "selectionType": "registered",
                 "selectionMatch": ""
-            ],
-            "functions": [
+            ]
+        ] as Map<String, Object>
+
+        if (holdType) {
+            body["functions"] = [
                 [
-                    "type": "setHold",
+                    "type"  : "setHold",
                     "params": [
-                        "holdType": holdType,
+                        "holdType"    : holdType,
                         "heatHoldTemp": desiredTemperature * 10,
                         "coolHoldTemp": desiredTemperature * 10,
-                        "holdHours": hours
+                        "holdHours"   : hours
                     ]
                 ]
             ]
-        ]
+        } else {
+            body["functions"] = [
+                [
+                    "type"  : "resumeProgram",
+                    "params": [
+                        "resumeAll": true
+                    ]
+                ]
+            ]
+        }
         String bodyAsJson = objectMapper.writeValueAsString(body)
 
         HttpHeaders headers = new HttpHeaders()

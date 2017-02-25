@@ -58,23 +58,24 @@ class UserController {
         String holdType = holdModel.holdMode
         Integer hours = null
         if (holdType == "Schedule") {
-            holdType = thermostat.getHoldAction()
-        }
-        if (holdType == "2H" || holdType == "useEndTime2Hour") {
-            holdType = "holdHours"
-            hours = 2
-        } else if (holdType == "4H" || holdType == "useEndTime4hour") {
-            holdType = "holdHours"
-            hours = 4
-        } else if (holdType == "8H" || holdType == "useEndTime8Hour") {
-            holdType = "holdHours"
-            hours = 8
-        } else if (holdType == "NT" || holdType == "nextPeriod" || holdType == "nextTransition") {
-            holdType = "nextTransition"
-            hours = null
-        } else if (holdType == "Hold" || holdType == "indefinite") {
-            holdType = "indefinite"
-            hours = null
+            holdType = null
+        } else {
+            if (holdType == "2H" || holdType == "useEndTime2Hour") {
+                holdType = "holdHours"
+                hours = 2
+            } else if (holdType == "4H" || holdType == "useEndTime4hour") {
+                holdType = "holdHours"
+                hours = 4
+            } else if (holdType == "8H" || holdType == "useEndTime8Hour") {
+                holdType = "holdHours"
+                hours = 8
+            } else if (holdType == "NT" || holdType == "nextPeriod" || holdType == "nextTransition") {
+                holdType = "nextTransition"
+                hours = null
+            } else if (holdType == "Hold" || holdType == "indefinite") {
+                holdType = "indefinite"
+                hours = null
+            }
         }
         ecobeeAuthManager.setHold(thermostat, holdModel.desiredTemperature, holdType, hours)
         return holdModel
