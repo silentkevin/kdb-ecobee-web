@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.webmvc.ResourceNotFoundException
 import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.RequestMapping
@@ -51,15 +50,16 @@ class UserController {
     protected User getCurrentUser() {
         String userName = null
         SecurityContext context = SecurityContextHolder.getContext()
+        log.debug("context={}", context)
         Authentication authentication = context.getAuthentication()
+        log.debug("devUserName={},context={},authentication={}", devUserName, context, authentication)
 
-        if (authentication.getAuthorities().find({ it.getAuthority() == "ROLE_ANONYMOUS" })) {
-            if (devUserName != null) {
-                userName = devUserName
-            }
+        if (devUserName && authentication.getAuthorities().find({ it.getAuthority() == "ROLE_ANONYMOUS" })) {
+            userName = devUserName
         } else {
             userName = authentication.getPrincipal().toString()
         }
+        log.debug("userName={}", userName)
         User user = userRepository.findByName(userName)
         if (user == null) {
             throw new ResourceNotFoundException("user not found")
