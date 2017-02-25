@@ -30,6 +30,10 @@ class BootstrapConfig implements CommandLineRunner {
 
     @Override
     void run(String... strings) throws Exception {
+        if (userRepository.count() > 0) {
+            return
+        }
+
         Role userRole = new Role(
             id: "27bf569f-9515-4a29-b33b-f54f74b95cc5",
             name: "user"

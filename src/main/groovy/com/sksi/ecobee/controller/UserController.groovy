@@ -35,6 +35,9 @@ class UserController {
     @RequestMapping(method = RequestMethod.GET)
     UserModel get() {
         User user = getCurrentUser()
+        if (user?.ecobeeUser?.accessToken) {
+            ecobeeAuthManager.updateThermostats(user.ecobeeUser)
+        }
         return getUserModel(user)
     }
 
@@ -50,7 +53,7 @@ class UserController {
         SecurityContext context = SecurityContextHolder.getContext()
         Authentication authentication = context.getAuthentication()
 
-        if (authentication.getAuthorities().find({ GrantedAuthority ga -> ga.getAuthority() == "ROLE_ANONYMOUS" })) {
+        if (authentication.getAuthorities().find({ it.getAuthority() == "ROLE_ANONYMOUS" })) {
             if (devUserName != null) {
                 userName = devUserName
             }

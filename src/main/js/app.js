@@ -51,16 +51,84 @@ class UserAuthStatefulView extends React.Component {
     render() {
         let user = this.props.user;
         let ecobeeUser = this.props.ecobeeUser;
-        if (!ecobeeUser.accessToken) {
+        if (!user.name) {
+            return ( <div>loading user</div> );
+        } else if (ecobeeUser && !ecobeeUser.accessToken && ecobeeUser.pinCode) {
             return (
                 <AuthorizeView user={user} ecobeeUser={ecobeeUser}/>
             );
+        } else if (ecobeeUser && user && ecobeeUser.accessToken) {
+            return (
+                <ThermostatListView user={user} ecobeeUser={ecobeeUser}/>
+            );
         } else {
-            return ( <div>to be determined</div> );
+            return ( <div>unknown state</div> );
         }
     }
 }
 // end::user-auth-stateful-view[]
+
+// tag::thermostat-list-view[]
+class ThermostatListView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {thermostats: []};
+    }
+
+    componentDidMount() {
+        let upperThis = this;
+        upperThis.refreshThermostats();
+
+        emitter.on('refreshThermostats', listener = function (args) {
+            upperThis.refreshThermostats();
+        });
+    }
+
+    refreshThermostats() {
+        let ecobeeUser = this.props.ecobeeUser;
+        ecobeeUser.thermostats.then(response => {
+            this.setState({ thermostats: response.entity._embedded.thermostats });
+        });
+    }
+
+    onClickRefresh() {
+        emitter.emit("refreshThermostats");
+    }
+
+    render() {
+        let user = this.props.user;
+        let ecobeeUser = this.props.ecobeeUser;
+        let thermostats = this.state.thermostats.map(thermostat =>
+            <Thermostat key={thermostat._links.self.href} thermostat={thermostat}/>
+        );
+        return (
+            <div>
+                {thermostats}
+                <div>
+                    <Button bsStyle="success" bsSize="large" onClick={this.onClickRefresh}>
+                        Refresh
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+}
+// end::thermostat-list-view[]
+
+// tag::thermostat[]
+class Thermostat extends React.Component {
+    render() {
+        var t = this.props.thermostat;
+        return (
+            <div>
+                <div><span>Name:</span> <span>{t.name}</span></div>
+                <div><span>Current Temperature:</span> <span>{t.currentTemperature}</span></div>
+                <div><span>HVAC Mode:</span> <span>{t.hvacMode}</span></div>
+            </div>
+        );
+    }
+}
+// end::thermostat[]
 
 // tag::authorize-view[]
 class AuthorizeView extends React.Component {

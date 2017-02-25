@@ -68,6 +68,29 @@ spring:
 ---
 
 spring:
+  profiles: postgres
+  datasource:
+    url: jdbc:postgresql://localhost:15432/abtest
+    driverClassName: org.postgresql.Driver
+    maxActive: 10
+    maxIdle: 5
+    minIdle: 2
+    initialSize: 5
+    removeAbandoned: true
+    username: abtest
+    password: abtest
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL94Dialect
+
+---
+
+spring:
   profiles: heroku
   datasource:
     url: ${JDBC_DATABASE_URL}

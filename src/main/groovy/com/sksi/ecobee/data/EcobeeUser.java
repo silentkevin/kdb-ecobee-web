@@ -6,15 +6,19 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table
@@ -28,6 +32,8 @@ public class EcobeeUser {
     private String accessToken;
     private String refreshToken;
     private Date accessTokenExpirationDate;
+
+    private Set<Thermostat> thermostats;
 
     private Long version;
 
@@ -83,6 +89,18 @@ public class EcobeeUser {
     }
     public void setAccessTokenExpirationDate(Date accessTokenExpirationDate) {
         this.accessTokenExpirationDate = accessTokenExpirationDate;
+    }
+
+    @OneToMany(
+        cascade = CascadeType.ALL,
+        fetch = FetchType.EAGER,
+        mappedBy = "ecobeeUser"
+    )
+    public Set<Thermostat> getThermostats() {
+        return thermostats;
+    }
+    public void setThermostats(Set<Thermostat> thermostats) {
+        this.thermostats = thermostats;
     }
 
     @Version

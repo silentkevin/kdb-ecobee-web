@@ -1,16 +1,28 @@
 package com.sksi.ecobee.manager
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.sksi.ecobee.data.EcobeeUser
 import com.sksi.ecobee.data.EcobeeUserRepository
+import com.sksi.ecobee.data.Thermostat
 import com.sksi.ecobee.data.User
 import com.sksi.ecobee.data.UserRepository
+import com.sksi.ecobee.manager.model.EcobeeAccessTokenResponse
 import com.sksi.ecobee.manager.model.EcobeeAuthorizeResponse
+import com.sksi.ecobee.manager.model.ThermostatListModel
+import com.sksi.ecobee.manager.model.ThermostatModel
+import org.joda.time.DateTime
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.UriComponentsBuilder
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -26,6 +38,7 @@ class EcobeeAuthManager {
     @Autowired RestTemplate restTemplate
     @Autowired EcobeeUserRepository ecobeeUserRepository
     @Autowired UserRepository userRepository
+    @Autowired ObjectMapper objectMapper
 
     void initUser(User user) {
         if (user.ecobeeUser != null) {
@@ -49,17 +62,74 @@ class EcobeeAuthManager {
         log.debug("generated login username={},pin={},code={}", user.name, ecobeeUser.pinCode, ecobeeUser.ecobeeCode)
     }
 
-    void getAccessToken(User user) {
+    void getAccessToken(User user, Boolean refresh = false) {
         EcobeeUser ecobeeUser = user.ecobeeUser
 
-        boolean refresh = ecobeeUser.accessToken != null
         String url = String.format("https://www.ecobee.com/home/token?grant_type=ecobeePin&code=%s&client_id=%s", ecobeeUser.ecobeeCode, ecobeeApiKey)
         if (refresh) {
             url = String.format("https://api.ecobee.com/token?grant_type=refresh_token&code=%s&client_id=%s", ecobeeUser.refreshToken, ecobeeApiKey)
         }
         log.debug("posting to refresh={},url={}", refresh, url)
-        Map resp = restTemplate.postForObject(url, [:], Map.class)
-        def a = 4
+        EcobeeAccessTokenResponse resp = restTemplate.postForObject(url, [:], EcobeeAccessTokenResponse.class)
+        ecobeeUser.accessToken = resp.accessToken
+        ecobeeUser.refreshToken = resp.refreshToken
+        DateTime expiration = DateTime.now().plusSeconds(resp.getExpiresIn())
+        ecobeeUser.accessTokenExpirationDate = expiration.toDate()
+        ecobeeUserRepository.save(ecobeeUser)
+        log.debug("got an access token accessToken={},refreshToken={},expiration={}",
+            ecobeeUser.accessToken, ecobeeUser.refreshToken, expiration)
+
+        updateThermostats(ecobeeUser)
+    }
+
+    void updateThermostats(EcobeeUser ecobeeUser) {
+        DateTime tenMinutesBeforeExpiration = new DateTime(ecobeeUser.getAccessTokenExpirationDate()).minusMinutes(10)
+        if (tenMinutesBeforeExpiration.isBefore(DateTime.now())) {
+            log.debug("access token doesn't need refresh tenMinutesBeforeExpiration={},accessToken={}",
+                tenMinutesBeforeExpiration, ecobeeUser.getAccessToken())
+            this.getAccessToken(ecobeeUser.user, true)
+        }
+
+        Map selection = [
+            "selection": [
+                "selectionType": "registered",
+                "selectionMatch": "",
+                "includeEvents": true,
+                "includeRuntime": true,
+                "includeSettings": true
+            ]
+        ]
+        String selectionStr = objectMapper.writeValueAsString(selection)
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://api.ecobee.com/1/thermostat")
+            .queryParam("format", "json")
+            .queryParam("body", selectionStr)
+            .build().toUri();
+
+        String url = uri.toURL().toString()
+
+        HttpHeaders headers = new HttpHeaders()
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON))
+        headers.set("Authorization", "Bearer " + ecobeeUser.getAccessToken())
+
+        HttpEntity<String> entity = new HttpEntity<String>("parameters", headers)
+
+        ResponseEntity<ThermostatListModel> ret = restTemplate.exchange(uri, HttpMethod.GET, entity, ThermostatListModel.class)
+//        ResponseEntity<Map> ret = restTemplate.exchange(uri, HttpMethod.GET, entity, Map.class)
+        ThermostatListModel model = ret.getBody()
+        for (ThermostatModel t : model.thermostats) {
+            Thermostat thermostat = ecobeeUser.thermostats?.find { it.name == t.name }
+            if (!thermostat) {
+                if (ecobeeUser.thermostats == null) {
+                    ecobeeUser.thermostats = new TreeSet<>()
+                }
+                thermostat = new Thermostat(name: t.name)
+                ecobeeUser.thermostats.add(thermostat)
+                thermostat.setEcobeeUser(ecobeeUser)
+            }
+            thermostat.hvacMode = t.settings.hvacMode
+            thermostat.currentTemperature = t.runtime.actualTemperature / 10.0
+        }
+        ecobeeUserRepository.save(ecobeeUser)
     }
 
     /*
