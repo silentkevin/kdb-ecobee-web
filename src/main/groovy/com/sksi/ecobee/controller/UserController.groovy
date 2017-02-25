@@ -57,7 +57,8 @@ class UserController {
         if (devUserName && authentication.getAuthorities().find({ it.getAuthority() == "ROLE_ANONYMOUS" })) {
             userName = devUserName
         } else {
-            userName = authentication.getPrincipal().toString()
+            org.springframework.security.core.userdetails.User springUser = (org.springframework.security.core.userdetails.User) authentication.getPrincipal()
+            userName = springUser.getUsername()
         }
         log.debug("userName={}", userName)
         User user = userRepository.findByName(userName)
