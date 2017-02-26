@@ -99,8 +99,10 @@ class ThermostatListView extends React.Component {
         );
         return (
             <div>
-                <div>Welcome, {user.name}, your time zone is {user.timeZone}</div>
-                {thermostats}
+                <div>Welcome, {this.props.user.name}, your time zone is {this.props.user.timeZone}</div>
+                <div>
+                    {thermostats}
+                </div>
                 <div>
                     <Button bsStyle="success" bsSize="large" onClick={this.onClickRefresh}>
                         Refresh
