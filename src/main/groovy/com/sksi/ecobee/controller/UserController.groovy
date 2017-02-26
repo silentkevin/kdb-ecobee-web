@@ -1,6 +1,8 @@
 package com.sksi.ecobee.controller
 
 import com.sksi.ecobee.data.EcobeeUser
+import com.sksi.ecobee.data.Role
+import com.sksi.ecobee.data.RoleRepository
 import com.sksi.ecobee.data.Thermostat
 import com.sksi.ecobee.data.ThermostatRepository
 import com.sksi.ecobee.data.User
@@ -14,6 +16,7 @@ import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -31,6 +34,7 @@ class UserController {
     @Autowired RepositoryEntityLinks repositoryEntityLinks
     @Autowired EcobeeAuthManager ecobeeAuthManager
     @Autowired ThermostatRepository thermostatRepository
+    @Autowired RoleRepository roleRepository
 
     @Value('${com.sksi.ecobee.devUserName:#{null}}')
     String devUserName
@@ -82,6 +86,7 @@ class UserController {
     }
 
     protected User getCurrentUser() {
+        Boolean allowUserCreation = false
         String userName = null
         SecurityContext context = SecurityContextHolder.getContext()
         log.debug("context={}", context)
@@ -90,6 +95,12 @@ class UserController {
 
         if (devUserName && authentication.getAuthorities().find({ it.getAuthority() == "ROLE_ANONYMOUS" })) {
             userName = devUserName
+        } else if (authentication instanceof OAuth2Authentication) {
+            OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication
+            userName = oAuth2Authentication.getPrincipal()
+            if (userName && authentication.getAuthorities().find({ it.getAuthority() == "ROLE_USER" })) {
+                allowUserCreation = true
+            }
         } else {
             org.springframework.security.core.userdetails.User springUser = (org.springframework.security.core.userdetails.User) authentication.getPrincipal()
             userName = springUser.getUsername()
@@ -97,7 +108,22 @@ class UserController {
         log.debug("userName={}", userName)
         User user = userRepository.findByName(userName)
         if (user == null) {
-            throw new ResourceNotFoundException("user not found")
+            if (allowUserCreation) {
+                Role userRole = roleRepository.findByName("user")
+                user = new User(
+                    name: userName,
+                    displayName: userName,
+                    email: "${userName}@github.com".toString(),
+                    enabled: true,
+                    roles: [userRole].toSet()
+                )
+                userRepository.save(user)
+
+                ecobeeAuthManager.initUser(user)
+                log.info("created userName={},user={}", userName, user)
+            } else {
+                throw new ResourceNotFoundException("user not found")
+            }
         }
         return user
     }

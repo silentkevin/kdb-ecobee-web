@@ -9,6 +9,17 @@ spring:
     deserialization:
       FAIL_ON_UNKNOWN_PROPERTIES: false
 
+security:
+  oauth2:
+    client:
+      clientId: 141006a9a09aaab10a9f
+      clientSecret: aa258cc8acdc3030562e535f7a31e422502d6e4d
+      accessTokenUri: https://github.com/login/oauth/access_token
+      userAuthorizationUri: https://github.com/login/oauth/authorize
+      clientAuthenticationScheme: form
+    resource:
+      userInfoUri: https://api.github.com/user
+
 management:
   security:
     enabled: false
@@ -31,7 +42,7 @@ logging:
     org.hibernate.SQL: 'DEBUG'
     org.springframework: 'INFO'
     org.springframework.env: 'INFO'
-    org.springframework.security: 'INFO'
+    org.springframework.security: 'DEBUG'
     org.springframework.cloud.sleuth: 'INFO'
 
 ---
@@ -108,3 +119,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL94Dialect
+
+security:
+  oauth2:
+    client:
+      clientId: 7577e035f2b7ee60f0b4
+      clientSecret: 500dc439e224d27ff766052677e376027dea1d9d
