@@ -19,7 +19,7 @@ class HerokuConfig {
         log.info("HEROKU IS ACTIVE")
     }
 
-    @Scheduled(initialDelay = 30_000, fixedRate = 30_000)
+    @Scheduled(initialDelay = 30_000L, fixedRate = 30_000L)
     void doSomethingScheduled() {
         log.info("**************** SCHEDULED ****************")
     }
