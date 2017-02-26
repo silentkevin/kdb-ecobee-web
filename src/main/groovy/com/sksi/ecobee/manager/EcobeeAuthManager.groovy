@@ -46,8 +46,8 @@ class EcobeeAuthManager {
     @Autowired ObjectMapper objectMapper
 
     void initUser(User user) {
-        if (user.ecobeeUser != null) {
-            log.debug("User already initialized user={},ecobeeUser", user, user.ecobeeUser)
+        if (user.ecobeeUser?.ecobeeCode != null) {
+            log.debug("User already initialized user={},ecobeeUser={}", user, user.ecobeeUser)
             return
         }
 
@@ -55,7 +55,7 @@ class EcobeeAuthManager {
         log.debug("initUser getting url={}", url)
         EcobeeAuthorizeResponse resp = restTemplate.getForObject(url, EcobeeAuthorizeResponse.class)
 
-        EcobeeUser ecobeeUser = new EcobeeUser()
+        EcobeeUser ecobeeUser = user.ecobeeUser ?: new EcobeeUser()
         ecobeeUser.setPinCode(resp.getEcobeePin())
         ecobeeUser.setEcobeeCode(resp.getCode())
         ecobeeUser.setUser(user)

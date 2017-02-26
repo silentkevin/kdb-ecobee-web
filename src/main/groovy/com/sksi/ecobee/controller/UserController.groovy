@@ -48,6 +48,18 @@ class UserController {
         return getUserModel(user)
     }
 
+    @RequestMapping(path = "/regenerate", method = RequestMethod.POST)
+    UserModel regenerate() {
+        User user = getCurrentUser()
+        user.ecobeeUser.pinCode = null
+        user.ecobeeUser.ecobeeCode = null
+        user.ecobeeUser.accessToken = null
+        user.ecobeeUser.refreshToken = null
+        user.ecobeeUser.accessToken = null
+        ecobeeAuthManager.initUser(user)
+        return getUserModel(user)
+    }
+
     @RequestMapping(path = "/authorize", method = RequestMethod.POST)
     UserModel authorize() {
         User user = getCurrentUser()

@@ -244,6 +244,20 @@ class AuthorizeView extends React.Component {
         });
     }
 
+    onClickRegenerate() {
+        let headers = {
+            'Content-Type': 'application/hal+json'
+        };
+        headers[csrfHeaderName] = csrfToken;
+        client({
+            method: 'POST',
+            path: '/user/regenerate',
+            headers: headers
+        }).done(response => {
+            emitter.emit('refreshUser');
+        });
+    }
+
     render() {
         let user = this.props.user;
         let ecobeeUser = this.props.ecobeeUser;
@@ -252,7 +266,10 @@ class AuthorizeView extends React.Component {
                 <div>Please log in to www.ecobee.com below and enter the pin <b>{ecobeeUser.pinCode}</b> in the "Settings" tab and then "My Apps"</div>
                 <div>
                     <Button bsStyle="success" bsSize="large" onClick={this.onClickAuthorize}>
-                        I Did It You Bastard
+                        I Did It
+                    </Button>
+                    <Button bsStyle="success" bsSize="large" onClick={this.onClickRegenerate}>
+                        Regenerate PIN Code
                     </Button>
                 </div>
                 {/*<EcobeeLoginFrame/>*/}
