@@ -1,8 +1,8 @@
-var path = require("path");
+let path = require("path");
+let Dashboard = require('webpack-dashboard');
+let DashboardPlugin = require('webpack-dashboard/plugin');
 
-var Dashboard = require('webpack-dashboard');
-var DashboardPlugin = require('webpack-dashboard/plugin');
-var dashboard = new Dashboard();
+let dashboard = new Dashboard();
 
 module.exports = {
     entry: './src/main/js/app.js',
@@ -14,7 +14,7 @@ module.exports = {
     debug: true,
 
     output: {
-        path: __dirname + '/src/main/resources/static',
+        path: __dirname + '/src/main/resources/static/js',
         filename: 'built.js',
         publicPath: '/'
     },

@@ -1,5 +1,5 @@
-var path = require("path");
-var webpack = require("webpack");
+let path = require("path");
+let webpack = require("webpack");
 
 module.exports = {
     entry: './src/main/js/app.js',
@@ -11,7 +11,7 @@ module.exports = {
     debug: true,
 
     output: {
-        path: __dirname + '/src/main/resources/static',
+        path: __dirname + '/src/main/resources/static/js',
         filename: 'built.js',
         publicPath: '/'
     },
