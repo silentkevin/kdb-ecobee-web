@@ -9,9 +9,13 @@ const Button = require('react-bootstrap').Button;
 const ButtonGroup = require('react-bootstrap').ButtonGroup;
 const ee = require('event-emitter');
 const moment = require('moment-timezone');
+const $ = require('jquery');
 // end::vars[]
 
 let emitter = ee({}), listener;
+
+let csrfToken = $("meta[name='_csrf']").attr("content");
+let csrfHeaderName = $("meta[name='_csrf_header']").attr("content");
 
 // tag::app[]
 class App extends React.Component {
@@ -128,7 +132,16 @@ class Thermostat extends React.Component {
             desiredTemperature: desiredTemp,
             holdMode: holdMode
         };
-        client({method: 'POST', path: '/user/hold', entity: entity, headers: {'Content-Type': 'application/hal+json'}}).done(response => {
+        let headers = {
+            'Content-Type': 'application/hal+json'
+        };
+        headers[csrfHeaderName] = csrfToken;
+        client({
+            method: 'POST',
+            path: '/user/hold',
+            entity: entity,
+            headers: headers
+        }).done(response => {
             emitter.emit('refreshUser');
         });
     }
@@ -218,7 +231,15 @@ class Thermostat extends React.Component {
 // tag::authorize-view[]
 class AuthorizeView extends React.Component {
     onClickAuthorize() {
-        client({method: 'POST', path: '/user/authorize'}).done(response => {
+        let headers = {
+            'Content-Type': 'application/hal+json'
+        };
+        headers[csrfHeaderName] = csrfToken;
+        client({
+            method: 'POST',
+            path: '/user/authorize',
+            headers: headers
+        }).done(response => {
             emitter.emit('refreshUser');
         });
     }
@@ -234,7 +255,7 @@ class AuthorizeView extends React.Component {
                         I Did It You Bastard
                     </Button>
                 </div>
-                <EcobeeLoginFrame/>
+                {/*<EcobeeLoginFrame/>*/}
             </div>
         );
     }

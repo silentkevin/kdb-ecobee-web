@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -18,7 +17,6 @@ import javax.annotation.PostConstruct;
 @EnableScheduling
 @EnableJpaRepositories(basePackages = "com.sksi.ecobee.data")
 @EntityScan(basePackages = "com.sksi.ecobee.data")
-@EnableOAuth2Sso
 public class ApplicationConfig {
     @Autowired private ObjectMapper objectMapper;
 

@@ -1,61 +1,45 @@
 package com.sksi.ecobee.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-//@Configuration
-//@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired private UserDetailsService userDetailsService;
+@Configuration
+@EnableOAuth2Sso
+public class SecurityConfig {//extends WebSecurityConfigurerAdapter {
+//    @Autowired private UserDetailsService userDetailsService;
 
-    @Value("${com.sksi.ecobee.devMode:false}")
-    Boolean devMode;
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        // @formatter:off
+//        http.antMatcher("/**").authorizeRequests()
+//            .antMatchers("/", "/login**", "/webjars/**").permitAll().anyRequest().authenticated()
+//            .and().logout().logoutSuccessUrl("/").permitAll()
+//            .and().csrf().disable();
+//        // @formatter:on
+//    }
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Autowired private OAuth2ClientAuthenticationProcessingFilter oAuth2ClientAuthenticationProcessingFilter;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        // TODO - don't do this
-        http.csrf().disable();
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        String a = "";
+////            // @formatter:off
+////            http.antMatcher("/**").authorizeRequests().antMatchers("/", "/login**", "/webjars/**").permitAll().anyRequest()
+////                .authenticated().and().exceptionHandling()
+////                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/")).and().logout()
+////                .logoutSuccessUrl("/").permitAll().and().csrf()
+////                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+////                .addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
+////            // @formatter:on
+//    }
 
-        if (devMode) {
-            http.authorizeRequests().anyRequest().permitAll();
-        } else {
-            http.authorizeRequests()
-                    .anyRequest().authenticated()
-                .and()
-                    .httpBasic();
-//            String[] permitAllExpression = {"/login", "/logout"};
-//            http
-//                    .authorizeRequests()
-//                    .antMatchers(permitAllExpression).permitAll()
-//                    .anyRequest().authenticated()
-//                .and()
-//                    .formLogin()
-//                    .loginPage("/login")
-//                    .permitAll()
-//                .and()
-//                    .logout()
-//                    .permitAll();
-        }
-    }
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        auth
-//            .inMemoryAuthentication()
-//               .withUser("user").password("password").roles("USER");
-        auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
-    }
+//    @Autowired
+//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.userDetailsService(userDetailsService);
+//    }
 }
