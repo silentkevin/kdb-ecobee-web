@@ -265,10 +265,10 @@ class AuthorizeView extends React.Component {
             <div>
                 <div>Please log in to www.ecobee.com below and enter the pin <b>{ecobeeUser.pinCode}</b> in the "Settings" tab and then "My Apps"</div>
                 <div>
-                    <Button bsStyle="success" bsSize="large" onClick={this.onClickAuthorize}>
+                    <Button id="authorize-btn" bsStyle="success" bsSize="large" onClick={this.onClickAuthorize}>
                         I Did It
                     </Button>
-                    <Button bsStyle="success" bsSize="large" onClick={this.onClickRegenerate}>
+                    <Button bsStyle="warning" bsSize="large" onClick={this.onClickRegenerate}>
                         Regenerate PIN Code
                     </Button>
                 </div>

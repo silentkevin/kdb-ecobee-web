@@ -8,3 +8,7 @@ body {
     margin-right: 10px;
     vertical-align: top;
 }
+
+#authorize-btn {
+    margin-right: 10px;
+}
