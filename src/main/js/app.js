@@ -176,7 +176,7 @@ class Thermostat extends React.Component {
             }
         }
 
-        let degrees = [66, 68, 70, 72, 74, 76, 78, 80, 90];
+        let degrees = [68, 70, 72, 74, 75, 76, 78, 80];
         if (t.hvacMode === "heat") {
             degrees = [50, 58, 60, 62, 64, 66, 68, 70];
         }
