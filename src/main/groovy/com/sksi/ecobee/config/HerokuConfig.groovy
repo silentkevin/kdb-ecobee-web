@@ -23,10 +23,10 @@ class HerokuConfig {
         log.info("HEROKU IS ACTIVE")
     }
 
-    @Scheduled(initialDelay = 30_000L, fixedRate = 30_000L)
-    void doSomethingScheduled() {
-        log.info("**************** SCHEDULED ****************")
-        String resp = restTemplate.getForObject("https://kdb-ecobee-web.herokuapp.com/css/main.css", String.class)
-        log.info("got resp={}", resp);
-    }
+//    @Scheduled(initialDelay = 30_000L, fixedRate = 30_000L)
+//    void doSomethingScheduled() {
+//        log.info("**************** SCHEDULED ****************")
+//        String resp = restTemplate.getForObject("https://kdb-ecobee-web.herokuapp.com/css/main.css", String.class)
+//        log.info("got resp={}", resp);
+//    }
 }
